@@ -1,0 +1,7 @@
+Flask==2.3.3
+Flask-CORS==4.0.0
+PyGithub==2.1.1
+python-telegram-bot==20.3
+watchdog==3.0.0
+requests==2.31.0
+Pillow==10.0.0
