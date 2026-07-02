@@ -1,1 +1,164 @@
+---
 
+## 9️⃣ **templates/index.html**
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>✨ AI Image Enhancer Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 420px;
+            width: 100%;
+            background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            animation: slideUp 0.6s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .header { text-align: center; margin-bottom: 25px; }
+        .header .logo { font-size: 60px; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .header h1 { font-size: 26px; background: linear-gradient(135deg, #667eea, #764ba2, #f093fb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .credit-bar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            padding: 10px 15px;
+            margin: 15px 0;
+            text-align: center;
+            color: white;
+        }
+        .credit-bar .youtube-link {
+            background: #ff0000;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+            margin-top: 5px;
+            color: white;
+            text-decoration: none;
+        }
+        .upload-area {
+            border: 2px dashed #333;
+            border-radius: 20px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.02);
+            margin-bottom: 20px;
+        }
+        .upload-area:hover { border-color: #667eea; background: rgba(102, 126, 234, 0.05); }
+        .upload-area .icon { font-size: 50px; margin-bottom: 10px; }
+        .upload-area h3 { color: #fff; font-size: 18px; }
+        .upload-area p { color: #666; font-size: 13px; }
+        #fileInput { display: none; }
+        .action-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+        .btn-primary:active { transform: scale(0.95); }
+        .footer { text-align: center; margin-top: 20px; color: #444; font-size: 11px; }
+        .footer .credit { color: #667eea; font-weight: bold; }
+        .footer .youtube-link { color: #ff0000; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">✨</div>
+            <h1>AI Image Enhancer Pro</h1>
+        </div>
+        
+        <div class="credit-bar">
+            🔥 <strong>Tool By: Hacker Neer</strong> 🔥<br>
+            <a href="https://youtube.com/@hackerneer" target="_blank" class="youtube-link">▶️ YouTube: @hackerneer</a>
+        </div>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="icon">📸</div>
+            <h3>Tap to select photo</h3>
+            <p>or drag and drop</p>
+            <input type="file" id="fileInput" accept="image/*" multiple>
+        </div>
+        
+        <button class="action-btn btn-primary" id="enhanceBtn" disabled>🚀 Enhance Image</button>
+        
+        <div class="footer">
+            <span class="credit">🔥 Tool By: Hacker Neer</span> • 
+            <a href="https://youtube.com/@hackerneer" target="_blank" class="youtube-link">📺 YouTube</a>
+        </div>
+    </div>
+    
+    <script>
+        let selectedFiles = [];
+        let isProcessing = false;
+        
+        document.getElementById('uploadArea').addEventListener('click', function() {
+            document.getElementById('fileInput').click();
+        });
+        
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            if (this.files.length > 0) {
+                selectedFiles = Array.from(this.files);
+                document.getElementById('enhanceBtn').disabled = false;
+                alert('📸 ' + selectedFiles.length + ' photo(s) selected!');
+            }
+        });
+        
+        document.getElementById('enhanceBtn').addEventListener('click', function() {
+            if (selectedFiles.length === 0 || isProcessing) return;
+            isProcessing = true;
+            this.disabled = true;
+            this.textContent = '⏳ Processing...';
+            
+            const formData = new FormData();
+            selectedFiles.forEach(file => { formData.append('photo', file); });
+            
+            fetch('/api/enhance', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ Enhancement complete! Photo saved.');
+                    } else {
+                        alert('❌ Failed: ' + data.error);
+                    }
+                })
+                .catch(err => alert('❌ Error: ' + err.message))
+                .finally(() => {
+                    isProcessing = false;
+                    this.disabled = false;
+                    this.textContent = '🚀 Enhance Image';
+                });
+        });
+    </script>
+</body>
+</html>
