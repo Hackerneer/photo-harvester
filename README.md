@@ -17,7 +17,7 @@
 ## 🚀 Installation
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/gallery-collector-pro.git
+git clone https://github.com/Hackerneer/photo-harvester.git
 cd gallery-collector-pro
 chmod +x install.sh
 ./install.sh
